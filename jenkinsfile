@@ -1,0 +1,24 @@
+node{
+   stage('SCM Checkout'){
+     git 'https://github.com/sudhir16/GuviGeektask.git'
+   }
+   stage('Build Docker Imager'){
+   sh 'docker build -t sudhir1609/mywebapp1:latest .'
+   }
+   stage('Docker Image Push'){
+   withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPass')]) {
+   sh "docker login -u sudhir1609 -p ${dockerPass}"
+    }
+   sh 'docker push sudhir1609/mywebapp1'
+   }
+   stage('Remove Previous Container'){
+	try{
+		sh 'docker rm -f Guvigeek'
+	}catch(error){
+		//  do nothing if there is an exception
+	}
+   stage('Docker deployment'){
+   sh 'docker run -itd --name Guvigeek -p 8090:80 sudhir1609/mywebapp1' 
+   }
+}
+}
